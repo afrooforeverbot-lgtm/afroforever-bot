@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Afro'o Forever — Dashboard Impérial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --void:    #0D0620;
+  --deep:    #1A0A40;
+  --surface: #22114F;
+  --raised:  #2D1B69;
+  --border:  rgba(201,162,39,0.2);
+  --gold:    #C9A227;
+  --gold-dim:#8B6E1A;
+  --gold-hi: #F0C84A;
+  --text:    #F0EAF8;
+  --muted:   #8B7AAA;
+  --red:     #CC2020;
+  --green:   #228B22;
+  --yellow:  #DAA520;
+  --brown:   #8B4513;
+  --sidebar: 260px;
+  --radius:  4px;
+}
+
+html, body {
+  height: 100%;
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── Login Screen ────────────────────────────────────────── */
+#login-screen {
+  position: fixed; inset: 0;
+  background: var(--void);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 999;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.login-emblem {
+  width: 120px; height: 120px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 56px;
+  box-shadow: 0 0 40px rgba(201,162,39,0.3), inset 0 0 40px rgba(201,162,39,0.05);
+}
+
+.login-title {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.login-sub {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: -20px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 320px;
+}
+
+.login-form input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 14px 18px;
+  font-size: 18px;
+  letter-spacing: 0.4em;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.login-form input:focus { border-color: var(--gold); }
+.login-form input::placeholder { color: var(--muted); letter-spacing: 0.1em; font-size: 14px; }
+
+.login-btn {
+  background: var(--gold);
+  color: var(--void);
+  border: none;
+  padding: 14px;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.login-btn:hover { background: var(--gold-hi); }
+
+.login-error {
+  color: var(--red);
+  font-size: 12px;
+  text-align: center;
+  height: 16px;
+}
+
+/* ── Layout ───────────────────────────────────────────────── */
+#app {
+  display: none;
+  min-height: 100vh;
+}
+#app.visible { display: flex; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar);
+  background: var(--deep);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 28px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1.3;
+}
+
+.sidebar-logo span {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+  font-family: 'Inter', sans-serif;
+}
+
+.sidebar-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  flex-shrink: 0;
+}
+.status-dot.offline { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+.nav {
+  flex: 1;
+  padding: 16px 0;
+}
+
+.nav-section {
+  padding: 8px 20px 4px;
+  font-size: 10px;
+  color: var(--gold-dim);
+  letter-spacing: 0.15em;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  transition: color 0.15s, background 0.15s;
+  border-left: 2px solid transparent;
+  position: relative;
+}
+
+.nav-item:hover {
+  color: var(--text);
+  background: rgba(201,162,39,0.05);
+}
+
+.nav-item.active {
+  color: var(--gold);
+  border-left-color: var(--gold);
+  background: rgba(201,162,39,0.08);
+}
+
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: white;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+}
+
+/* ── Main Content ────────────────────────────────────────── */
+.main {
+  margin-left: var(--sidebar);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  background: var(--deep);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.page-title {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.topbar-admin {
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.content {
+  padding: 32px;
+  flex: 1;
+}
+
+/* ── Sections (pages) ────────────────────────────────────── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── Empire Stats (page empire) ──────────────────────────── */
+.empire-header {
+  margin-bottom: 40px;
+}
+
+.empire-title {
+  font-family: 'Cinzel', serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.empire-sub {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+
+.stat-block {
+  background: var(--deep);
+  padding: 28px 24px;
+  position: relative;
+}
+
+.stat-block::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 24px; right: 24px;
+  height: 1px;
+  background: var(--border);
+}
+
+.stat-number {
+  font-family: 'Cinzel', serif;
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+.stat-delta {
+  font-size: 11px;
+  color: var(--green);
+  margin-top: 4px;
+}
+
+.stat-delta.down { color: var(--red); }
+
+/* ── Section title ───────────────────────────────────────── */
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Table ───────────────────────────────────────────────── */
+.table-wrap {
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  margin-bottom: 32px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  background: var(--surface);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 10px;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border);
+}
+
+tbody tr {
+  border-bottom: 1px solid rgba(201,162,39,0.08);
+  transition: background 0.1s;
+}
+
+tbody tr:hover { background: rgba(201,162,39,0.04); }
+tbody tr:last-child { border-bottom: none; }
+
+tbody td {
+  padding: 12px 16px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.td-af-id { color: var(--gold-dim); font-family: 'Inter', monospace; font-size: 11px; }
+.td-pseudo { font-weight: 500; color: var(--text); }
+.td-xp { color: var(--gold); font-weight: 600; }
+.td-grade { color: var(--muted); }
+.td-status-active { color: var(--green); font-size: 11px; }
+.td-status-banned { color: var(--red); font-size: 11px; }
+.td-status-inactive { color: var(--muted); font-size: 11px; }
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--void);
+}
+.btn-gold:hover { background: var(--gold-hi); }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+.btn-danger {
+  background: transparent;
+  border: 1px solid rgba(204,32,32,0.4);
+  color: var(--red);
+}
+.btn-danger:hover { background: rgba(204,32,32,0.1); }
+
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+
+/* ── Search & Filters ────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 9px 14px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 280px;
+}
+.search-input:focus { border-color: var(--gold); }
+.search-input::placeholder { color: var(--muted); }
+
+.filter-select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 9px 14px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  cursor: pointer;
+}
+.filter-select:focus { border-color: var(--gold); }
+
+/* ── Modal ───────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(13,6,32,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  width: 480px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+.modal-close:hover { color: var(--text); }
+
+.modal-body { padding: 24px; }
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ── Form elements ───────────────────────────────────────── */
+.form-group { margin-bottom: 18px; }
+
+.form-label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--deep);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); }
+.form-textarea { min-height: 80px; resize: vertical; }
+
+/* ── Toast ───────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 999;
+}
+
+.toast {
+  background: var(--surface);
+  border-left: 3px solid var(--gold);
+  padding: 12px 20px;
+  font-size: 13px;
+  min-width: 240px;
+  max-width: 360px;
+  animation: slideIn 0.2s ease;
+}
+.toast.error { border-left-color: var(--red); }
+.toast.success { border-left-color: var(--green); }
+
+@keyframes slideIn {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ── Grades page ─────────────────────────────────────────── */
+.grade-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.grade-item {
+  background: var(--deep);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.grade-icon { font-size: 28px; }
+.grade-name {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.grade-cost { font-size: 12px; color: var(--gold); }
+.grade-universe { font-size: 10px; color: var(--muted); }
+
+/* ── Badges page ─────────────────────────────────────────── */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+
+.badge-item {
+  background: var(--deep);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.badge-item:hover { background: var(--surface); }
+
+.badge-icon-lg { font-size: 32px; margin-bottom: 6px; }
+.badge-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.badge-category { font-size: 10px; color: var(--muted); }
+.badge-rarity-common { color: var(--muted); font-size: 10px; }
+.badge-rarity-rare { color: #4FC3F7; font-size: 10px; }
+.badge-rarity-legendary { color: var(--gold); font-size: 10px; }
+.badge-rarity-unique { color: var(--red); font-size: 10px; }
+
+/* ── Moderation page ─────────────────────────────────────── */
+.mod-level {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.mod-level.information { background: rgba(201,162,39,0.1); color: var(--gold); }
+.mod-level.avertissement { background: rgba(218,165,32,0.15); color: var(--yellow); }
+.mod-level.infraction { background: rgba(204,32,32,0.1); color: #FF6B6B; }
+.mod-level.grave { background: rgba(204,32,32,0.25); color: var(--red); }
+.mod-level.sanction { background: var(--red); color: white; }
+
+/* ── Config page ─────────────────────────────────────────── */
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.config-group {
+  border: 1px solid var(--border);
+  padding: 20px;
+}
+
+.config-group-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+
+.config-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(201,162,39,0.06);
+  gap: 16px;
+}
+.config-row:last-child { border-bottom: none; }
+
+.config-key { font-size: 12px; color: var(--muted); flex: 1; }
+.config-value {
+  background: var(--deep);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  width: 120px;
+  text-align: right;
+  outline: none;
+}
+.config-value:focus { border-color: var(--gold); }
+
+/* ── Toggle switch ───────────────────────────────────────── */
+.toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: 0.2s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  height: 12px; width: 12px;
+  left: 3px; bottom: 3px;
+  background: var(--muted);
+  transition: 0.2s;
+}
+.toggle input:checked + .toggle-slider { border-color: var(--gold); }
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(16px);
+  background: var(--gold);
+}
+
+/* ── Geo page ────────────────────────────────────────────── */
+.geo-tree {
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+
+.geo-node {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(201,162,39,0.05);
+}
+.geo-node:last-child { border-bottom: none; }
+
+.geo-type {
+  font-size: 10px;
+  color: var(--muted);
+  width: 60px;
+  flex-shrink: 0;
+  font-family: 'Cinzel', serif;
+}
+
+.geo-name { font-size: 13px; color: var(--text); }
+.geo-xp { margin-left: auto; color: var(--gold); font-size: 12px; font-weight: 600; }
+.geo-count { color: var(--muted); font-size: 11px; margin-left: 16px; }
+
+.geo-indent-1 { padding-left: 20px; }
+.geo-indent-2 { padding-left: 40px; }
+.geo-indent-3 { padding-left: 60px; }
+
+/* ── Empty state ─────────────────────────────────────────── */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-text { font-size: 13px; }
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--raised); }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 900px) {
+  :root { --sidebar: 0px; }
+  .sidebar { transform: translateX(-260px); width: 260px; transition: transform 0.3s; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .config-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ──────────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-emblem">👑</div>
+  <div>
+    <div class="login-title">Afro'o Forever</div>
+    <div class="login-sub">Dashboard Impérial · Accès Restreint</div>
+  </div>
+  <div class="login-form">
+    <input type="password" id="pin-input" placeholder="Code d'accès" maxlength="20" autocomplete="off">
+    <button class="login-btn" onclick="doLogin()">Entrer dans l'Empire</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ── APP ────────────────────────────────────────────────────── -->
+<div id="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        🌍 Afro'o Forever
+        <span>Dashboard Impérial v1.0</span>
+      </div>
+      <div class="sidebar-status">
+        <div class="status-dot" id="bot-status-dot"></div>
+        <span id="bot-status-text">Vérification…</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-section">Empire</div>
+      <div class="nav-item active" onclick="showPage('empire')">
+        <span class="nav-icon">🌍</span> Vue Impériale
+      </div>
+      <div class="nav-item" onclick="showPage('geo')">
+        <span class="nav-icon">⚔️</span> Géographie
+      </div>
+
+      <div class="nav-section">Membres</div>
+      <div class="nav-item" onclick="showPage('membres')">
+        <span class="nav-icon">👤</span> Membres
+      </div>
+      <div class="nav-item" onclick="showPage('grades')">
+        <span class="nav-icon">🎖️</span> Grades
+      </div>
+      <div class="nav-item" onclick="showPage('badges')">
+        <span class="nav-icon">🏅</span> Badges
+      </div>
+      <div class="nav-item" onclick="showPage('missions')">
+        <span class="nav-icon">🎯</span> Missions
+      </div>
+
+      <div class="nav-section">Économie</div>
+      <div class="nav-item" onclick="showPage('afroo')">
+        <span class="nav-icon">🪙</span> L'Afroo
+      </div>
+
+      <div class="nav-section">Sécurité</div>
+      <div class="nav-item" onclick="showPage('moderation')">
+        <span class="nav-icon">🛡️</span> Modération
+        <span class="nav-badge" id="mod-badge" style="display:none">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('groupes')">
+        <span class="nav-icon">💬</span> Groupes
+      </div>
+
+      <div class="nav-section">Système</div>
+      <div class="nav-item" onclick="showPage('config')">
+        <span class="nav-icon">⚙️</span> Configuration
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      Communauté Unie · Esprit Shonen
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">Vue Impériale</div>
+      <div class="topbar-right">
+        <span id="current-time"></span>
+        <span class="topbar-admin">👑 Super Admin</span>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()">Déconnexion</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── PAGE EMPIRE ──────────────────────────────────────── -->
+      <div class="page active" id="page-empire">
+        <div class="empire-header">
+          <div class="empire-title">Empire Afro'o Forever</div>
+          <div class="empire-sub">Communauté Unie · Esprit Shonen</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-block">
+            <div class="stat-number" id="stat-membres">—</div>
+            <div class="stat-label">Membres actifs</div>
+            <div class="stat-delta">Empire total</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-number" id="stat-xp">—</div>
+            <div class="stat-label">XP impérial total</div>
+            <div class="stat-delta">XP actuel cumulé</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-number" id="stat-groupes">—</div>
+            <div class="stat-label">Groupes actifs</div>
+            <div class="stat-delta">WhatsApp connectés</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-number" id="stat-badges">—</div>
+            <div class="stat-label">Badges distribués</div>
+            <div class="stat-delta">Total attributions</div>
+          </div>
+        </div>
+
+        <div class="section-title">Top 10 Membres — XP Actuel</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Membre</th>
+                <th>AF-ID</th>
+                <th>XP Actuel</th>
+                <th>XP Historique</th>
+                <th>Niveau</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody id="top-membres-tbody">
+              <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-title">Top Clubs — XP Cumulé</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Club</th><th>XP Cumulé</th><th>Membres</th></tr>
+            </thead>
+            <tbody id="top-clubs-tbody">
+              <tr><td colspan="3" style="text-align:center;padding:24px;color:var(--muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── PAGE MEMBRES ─────────────────────────────────────── -->
+      <div class="page" id="page-membres">
+        <div class="toolbar">
+          <input class="search-input" type="text" placeholder="Rechercher par pseudo, AF-ID, numéro…" id="search-membres" oninput="filterMembres()">
+          <select class="filter-select" id="filter-status" onchange="filterMembres()">
+            <option value="">Tous les statuts</option>
+            <option value="active">Actifs</option>
+            <option value="inactive">Inactifs</option>
+            <option value="banned">Bannis</option>
+          </select>
+          <select class="filter-select" id="filter-geo" onchange="filterMembres()">
+            <option value="">Toute géographie</option>
+          </select>
+          <button class="btn btn-gold btn-sm" onclick="openModal('modal-addxp')">+ Attribuer XP</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>AF-ID</th>
+                <th>Pseudo</th>
+                <th>XP Actuel</th>
+                <th>XP Historique</th>
+                <th>Niveau</th>
+                <th>Grade</th>
+                <th>Structure</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="membres-tbody">
+              <tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── PAGE GÉOGRAPHIE ─────────────────────────────────── -->
+      <div class="page" id="page-geo">
+        <div class="toolbar">
+          <button class="btn btn-gold btn-sm" onclick="openModal('modal-addgeo')">+ Ajouter structure</button>
+        </div>
+        <div class="section-title">Hiérarchie de l'Empire</div>
+        <div class="geo-tree" id="geo-tree">
+          <div style="color:var(--muted);padding:20px;text-align:center">Chargement…</div>
+        </div>
+      </div>
+
+      <!-- ── PAGE GRADES ──────────────────────────────────────── -->
+      <div class="page" id="page-grades">
+        <div class="section-title">Hiérarchie Militaire — Univers 1</div>
+        <div class="grade-list" id="grade-list">
+          <div style="color:var(--muted);padding:20px;text-align:center">Chargement…</div>
+        </div>
+      </div>
+
+      <!-- ── PAGE BADGES ──────────────────────────────────────── -->
+      <div class="page" id="page-badges">
+        <div class="toolbar">
+          <button class="btn btn-gold btn-sm" onclick="openModal('modal-createbadge')">+ Créer badge</button>
+          <button class="btn btn-ghost btn-sm" onclick="openModal('modal-awardbadge')">Attribuer badge</button>
+        </div>
+        <div class="section-title">Bibliothèque de Badges</div>
+        <div class="badge-grid" id="badge-grid">
+          <div style="color:var(--muted);padding:20px;text-align:center">Chargement…</div>
+        </div>
+      </div>
+
+      <!-- ── PAGE MISSIONS ────────────────────────────────────── -->
+      <div class="page" id="page-missions">
+        <div class="toolbar">
+          <button class="btn btn-gold btn-sm" onclick="openModal('modal-createmission')">+ Créer mission</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Mission</th><th>Type</th><th>Difficulté</th><th>Récompenses</th><th>Statut</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="missions-tbody">
+              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── PAGE AFROO ───────────────────────────────────────── -->
+      <div class="page" id="page-afroo">
+        <div class="stats-grid" style="margin-bottom:32px;grid-template-columns:repeat(3,1fr)">
+          <div class="stat-block">
+            <div class="stat-number" id="stat-afroo-total">—</div>
+            <div class="stat-label">Afroo en circulation</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-number" id="stat-afroo-tx">—</div>
+            <div class="stat-label">Transactions totales</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-number" id="stat-afroo-members">—</div>
+            <div class="stat-label">Membres avec Afroo</div>
+          </div>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-gold btn-sm" onclick="openModal('modal-afroogive')">🪙 Distribuer Afroo</button>
+        </div>
+        <div class="section-title">Transactions récentes</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Membre</th><th>Montant</th><th>Source</th><th>Solde avant</th><th>Solde après</th><th>Date</th></tr>
+            </thead>
+            <tbody id="afroo-tbody">
+              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── PAGE MODÉRATION ─────────────────────────────────── -->
+      <div class="page" id="page-moderation">
+        <div class="toolbar">
+          <select class="filter-select" id="filter-mod-level" onchange="loadModeration()">
+            <option value="">Tous niveaux</option>
+            <option value="information">Information</option>
+            <option value="avertissement">Avertissement</option>
+            <option value="infraction">Infraction</option>
+            <option value="grave">Grave</option>
+            <option value="sanction">Sanction</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Membre</th><th>Action</th><th>Niveau</th><th>Raison</th><th>Groupe</th><th>Date</th><th>Statut</th></tr>
+            </thead>
+            <tbody id="mod-tbody">
+              <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── PAGE GROUPES ─────────────────────────────────────── -->
+      <div class="page" id="page-groupes">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Nom du groupe</th><th>JID</th><th>Statut</th><th>Activé le</th><th>Fonctionnalités</th></tr>
+            </thead>
+            <tbody id="groupes-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── PAGE CONFIG ──────────────────────────────────────── -->
+      <div class="page" id="page-config">
+        <div class="config-grid" id="config-grid">
+          <div style="color:var(--muted);padding:20px">Chargement…</div>
+        </div>
+        <button class="btn btn-gold" onclick="saveConfig()">Sauvegarder la configuration</button>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /app -->
+
+<!-- ── MODALS ─────────────────────────────────────────────────── -->
+
+<!-- Ajouter XP -->
+<div class="modal-overlay" id="modal-addxp">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Attribuer / Retirer XP</div>
+      <button class="modal-close" onclick="closeModal('modal-addxp')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Membre (AF-ID ou pseudo)</label>
+        <input class="form-input" type="text" id="xp-membre-input" placeholder="AF-000001 ou pseudo">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Montant XP (négatif pour retirer)</label>
+        <input class="form-input" type="number" id="xp-amount-input" placeholder="ex: 50 ou -20">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note (optionnel)</label>
+        <input class="form-input" type="text" id="xp-note-input" placeholder="Raison de l'attribution">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-addxp')">Annuler</button>
+      <button class="btn btn-gold" onclick="submitXP()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Créer Badge -->
+<div class="modal-overlay" id="modal-createbadge">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Créer un nouveau Badge</div>
+      <button class="modal-close" onclick="closeModal('modal-createbadge')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nom du badge</label>
+        <input class="form-input" type="text" id="badge-name" placeholder="ex: Fondateur">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Icône (emoji)</label>
+        <input class="form-input" type="text" id="badge-icon" placeholder="ex: 👑" maxlength="4">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="badge-desc" placeholder="Description du badge…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Catégorie</label>
+        <select class="form-select" id="badge-category">
+          <option>accomplissement</option><option>activité</option><option>événement</option>
+          <option>fondateur</option><option>gaming</option><option>karaoke</option>
+          <option>leadership</option><option>légendaire</option><option>rare</option>
+          <option>secret</option><option>webtoon</option><option>création</option>
+          <option>communauté</option><option>compétition</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rareté</label>
+        <select class="form-select" id="badge-rarity">
+          <option value="common">Commun</option>
+          <option value="rare">Rare</option>
+          <option value="legendary">Légendaire</option>
+          <option value="unique">Unique</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;gap:20px;align-items:center">
+        <label class="form-label" style="margin:0">Secret</label>
+        <label class="toggle"><input type="checkbox" id="badge-secret"><span class="toggle-slider"></span></label>
+        <label class="form-label" style="margin:0;margin-left:16px">Temporaire</label>
+        <label class="toggle"><input type="checkbox" id="badge-temp"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre max de détenteurs (laisser vide = illimité)</label>
+        <input class="form-input" type="number" id="badge-maxholders" placeholder="ex: 1 pour badge unique">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-createbadge')">Annuler</button>
+      <button class="btn btn-gold" onclick="submitCreateBadge()">Créer le badge</button>
+    </div>
+  </div>
+</div>
+
+<!-- Attribuer Badge -->
+<div class="modal-overlay" id="modal-awardbadge">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Attribuer un Badge</div>
+      <button class="modal-close" onclick="closeModal('modal-awardbadge')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Membre</label>
+        <input class="form-input" type="text" id="award-membre" placeholder="AF-ID ou pseudo">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Badge</label>
+        <select class="form-select" id="award-badge-select"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Raison</label>
+        <input class="form-input" type="text" id="award-reason" placeholder="Raison de l'attribution">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-awardbadge')">Annuler</button>
+      <button class="btn btn-gold" onclick="submitAwardBadge()">Attribuer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Créer Mission -->
+<div class="modal-overlay" id="modal-createmission">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Créer une Mission</div>
+      <button class="modal-close" onclick="closeModal('modal-createmission')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Titre</label>
+        <input class="form-input" type="text" id="mission-title" placeholder="Nom de la mission">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="mission-desc"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="mission-type">
+          <option value="daily">Quotidienne</option>
+          <option value="weekly">Hebdomadaire</option>
+          <option value="monthly">Mensuelle</option>
+          <option value="event">Événement</option>
+          <option value="beginner">Débutant</option>
+          <option value="secret">Secrète</option>
+          <option value="community">Communautaire</option>
+          <option value="global">Globale</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Difficulté</label>
+        <select class="form-select" id="mission-diff">
+          <option value="facile">Facile</option>
+          <option value="normale">Normale</option>
+          <option value="difficile">Difficile</option>
+          <option value="tres_difficile">Très difficile</option>
+          <option value="epique">Épique</option>
+          <option value="legendaire">Légendaire</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Récompense XP</label>
+        <input class="form-input" type="number" id="mission-xp" placeholder="0" min="0">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-createmission')">Annuler</button>
+      <button class="btn btn-gold" onclick="submitCreateMission()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Donner Afroo -->
+<div class="modal-overlay" id="modal-afroogive">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🪙 Distribuer de l'Afroo</div>
+      <button class="modal-close" onclick="closeModal('modal-afroogive')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--muted);font-size:12px;margin-bottom:20px;font-style:italic">
+        L'Afroo est rare et mystérieux. Chaque distribution est définitive et loggée.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Membre</label>
+        <input class="form-input" type="text" id="afroo-membre" placeholder="AF-ID ou pseudo">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Montant Afroo</label>
+        <input class="form-input" type="number" id="afroo-amount" placeholder="ex: 10" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Raison (optionnel)</label>
+        <input class="form-input" type="text" id="afroo-reason" placeholder="Bonus mystérieux…">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-afroogive')">Annuler</button>
+      <button class="btn btn-gold" onclick="submitAfrooGive()">Distribuer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ajouter Géographie -->
+<div class="modal-overlay" id="modal-addgeo">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Ajouter une structure</div>
+      <button class="modal-close" onclick="closeModal('modal-addgeo')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="geo-type">
+          <option value="royaume">Royaume</option>
+          <option value="legion">Légion</option>
+          <option value="club">Club</option>
+          <option value="district">District</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nom</label>
+        <input class="form-input" type="text" id="geo-name" placeholder="Nom de la structure">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Parent (ID numérique)</label>
+        <input class="form-input" type="number" id="geo-parent" placeholder="ID du parent">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-addgeo')">Annuler</button>
+      <button class="btn btn-gold" onclick="submitAddGeo()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ── Config connexion bot ──────────────────────────────────────
+// Modifier cette URL selon votre déploiement Railway
+const BOT_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8080'
+  : window.location.origin;
+
+const DASHBOARD_PIN = '1234'; // ← CHANGER CE CODE
+
+// ── Auth ──────────────────────────────────────────────────────
+function doLogin() {
+  const val = document.getElementById('pin-input').value;
+  if (val === DASHBOARD_PIN) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    initDashboard();
+  } else {
+    document.getElementById('login-error').textContent = 'Code incorrect.';
+    document.getElementById('pin-input').value = '';
+    setTimeout(() => document.getElementById('login-error').textContent = '', 2000);
+  }
+}
+
+document.getElementById('pin-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function doLogout() {
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pin-input').value = '';
+}
+
+// ── Navigation ────────────────────────────────────────────────
+const pageTitles = {
+  empire: 'Vue Impériale', geo: 'Géographie de l\'Empire',
+  membres: 'Gestion des Membres', grades: 'Grades Militaires',
+  badges: 'Badges & Distinctions', missions: 'Missions & Quêtes',
+  afroo: 'L\'Afroo — Monnaie Impériale', moderation: 'Modération',
+  groupes: 'Groupes WhatsApp', config: 'Configuration Système'
+};
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('page-title').textContent = pageTitles[name] || name;
+  event.currentTarget.classList.add('active');
+  loadPageData(name);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+function initDashboard() {
+  updateClock();
+  setInterval(updateClock, 1000);
+  checkBotStatus();
+  setInterval(checkBotStatus, 30000);
+  loadPageData('empire');
+  loadBadgesForSelect();
+}
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('current-time').textContent =
+    now.toLocaleDateString('fr-FR') + ' ' + now.toLocaleTimeString('fr-FR');
+}
+
+// ── API helper ────────────────────────────────────────────────
+async function apiFetch(path, method = 'GET', body = null) {
+  try {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(BOT_URL + path, opts);
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
+  } catch (err) {
+    console.warn('API non disponible (' + path + '):', err.message);
+    return null;
+  }
+}
+
+// ── Bot status ────────────────────────────────────────────────
+async function checkBotStatus() {
+  const data = await apiFetch('/health');
+  const dot = document.getElementById('bot-status-dot');
+  const text = document.getElementById('bot-status-text');
+  if (data && data.botReady) {
+    dot.className = 'status-dot';
+    text.textContent = 'Bot connecté';
+  } else if (data) {
+    dot.className = 'status-dot offline';
+    text.textContent = data.qrAvailable ? 'En attente QR' : 'Démarrage…';
+  } else {
+    dot.className = 'status-dot offline';
+    text.textContent = 'Hors ligne';
+  }
+}
+
+// ── Données mockées (en attendant l'API) ──────────────────────
+const MOCK = {
+  membres: [
+    { af_id:'AF-000001', pseudo:'Morel_Noel', xp_current:1500, xp_historical:2800, level:6, grade_name:'Lieutenant', grade_icon:'🔱', geography_name:'Otaku De Soa', status:'active' },
+    { af_id:'AF-000002', pseudo:'ShadowKing', xp_current:1200, xp_historical:1900, level:4, grade_name:'Sergent', grade_icon:'🌟', geography_name:'Otaku De Soa', status:'active' },
+    { af_id:'AF-000003', pseudo:'AkiraZ', xp_current:980, xp_historical:1500, level:3, grade_name:'Caporal-Chef', grade_icon:'🏅', geography_name:'District Centre', status:'active' },
+    { af_id:'AF-000004', pseudo:'NarutoCam', xp_current:750, xp_historical:800, level:2, grade_name:'Caporal', grade_icon:'🎖️', geography_name:'Otaku De Soa', status:'active' },
+    { af_id:'AF-000005', pseudo:'ZeroTwo_', xp_current:600, xp_historical:700, level:2, grade_name:'Soldat', grade_icon:'⚔️', geography_name:'Otaku De Soa', status:'inactive' },
+  ],
+  grades: [
+    {rank_order:1,name:'Recrue',xp_cost:0,icon:'🪖',universe:1},
+    {rank_order:2,name:'Soldat',xp_cost:100,icon:'⚔️',universe:1},
+    {rank_order:3,name:'Caporal',xp_cost:300,icon:'🎖️',universe:1},
+    {rank_order:4,name:'Caporal-Chef',xp_cost:600,icon:'🏅',universe:1},
+    {rank_order:5,name:'Sergent',xp_cost:1000,icon:'🌟',universe:1},
+    {rank_order:6,name:'Sergent-Chef',xp_cost:1500,icon:'⭐',universe:1},
+    {rank_order:7,name:'Adjudant',xp_cost:2200,icon:'💫',universe:1},
+    {rank_order:8,name:'Lieutenant',xp_cost:3000,icon:'🔱',universe:1},
+    {rank_order:9,name:'Capitaine',xp_cost:4500,icon:'🛡️',universe:1},
+    {rank_order:10,name:'Commandant',xp_cost:6500,icon:'⚡',universe:1},
+    {rank_order:11,name:'Lieutenant-Colonel',xp_cost:9000,icon:'🌠',universe:1},
+    {rank_order:12,name:'Colonel',xp_cost:12000,icon:'👑',universe:1},
+    {rank_order:13,name:'Général',xp_cost:16000,icon:'🏆',universe:1},
+    {rank_order:14,name:'Maréchal',xp_cost:25000,icon:'🌌',universe:1},
+  ],
+  badges: [
+    {name:'Fondateur',icon:'👑',category:'fondateur',rarity:'unique'},
+    {name:'Première Connexion',icon:'🌟',category:'accomplissement',rarity:'common'},
+    {name:'Centurion',icon:'💯',category:'accomplissement',rarity:'common'},
+    {name:'Millénaire',icon:'🏆',category:'accomplissement',rarity:'rare'},
+    {name:'Actif de la Semaine',icon:'🔥',category:'activité',rarity:'rare'},
+    {name:'Première Mission',icon:'🎯',category:'accomplissement',rarity:'common'},
+    {name:'Guerrier Gaming',icon:'🎮',category:'gaming',rarity:'rare'},
+    {name:'Voix d\'Or',icon:'🎤',category:'karaoke',rarity:'rare'},
+  ],
+  missions: [
+    {title:'Bienvenue !',type:'beginner',difficulty:'facile',rewards:{xp:50},is_active:true},
+    {title:'Première parole',type:'beginner',difficulty:'facile',rewards:{xp:10},is_active:true},
+    {title:'Bavard',type:'daily',difficulty:'normale',rewards:{xp:100},is_active:true},
+    {title:'Centurion XP',type:'global',difficulty:'normale',rewards:{xp:20},is_active:true},
+  ],
+  afroo: [
+    {pseudo:'Morel_Noel',amount:5,source:'bonus_mystery',balance_before:0,balance_after:5,created_at:'2024-01-15'},
+    {pseudo:'ShadowKing',amount:3,source:'xp_conversion',balance_before:0,balance_after:3,created_at:'2024-01-14'},
+  ],
+  moderation: [
+    {pseudo:'ZeroTwo_',action:'flood_warning',level:'avertissement',reason:'Flood détecté',group_jid:'@g.us',created_at:'2024-01-15',status:'active'},
+  ],
+  groupes: [
+    {group_name:'Otaku De Soa — Principal',group_jid:'120363xxxxxx@g.us',status:'active',activated_at:'2024-01-01'},
+    {group_name:'Otaku De Soa — Gaming',group_jid:'120363yyyyyy@g.us',status:'active',activated_at:'2024-01-05'},
+  ],
+  config: [
+    {key:'xp_per_message',value:'1',description:'XP par message'},
+    {key:'xp_flush_interval_ms',value:'60000',description:'Intervalle flush XP (ms)'},
+    {key:'xp_drain_enabled',value:'false',description:'Drain XP actif',type:'toggle'},
+    {key:'xp_drain_amount',value:'100',description:'Montant du drain XP'},
+    {key:'xp_drain_grace_days',value:'30',description:'Jours de grâce nouveaux membres'},
+    {key:'afroo_xp_rate',value:'100',description:'XP pour 1 Afroo'},
+    {key:'consent_version',value:'1.0',description:'Version des CGU'},
+  ]
+};
+
+let allMembres = [...MOCK.membres];
+
+// ── Charger données par page ──────────────────────────────────
+function loadPageData(page) {
+  switch(page) {
+    case 'empire':    loadEmpire(); break;
+    case 'membres':   loadMembres(); break;
+    case 'grades':    loadGrades(); break;
+    case 'badges':    loadBadges(); break;
+    case 'missions':  loadMissions(); break;
+    case 'afroo':     loadAfroo(); break;
+    case 'moderation':loadModeration(); break;
+    case 'groupes':   loadGroupes(); break;
+    case 'geo':       loadGeo(); break;
+    case 'config':    loadConfig(); break;
+  }
+}
+
+// ── Empire ────────────────────────────────────────────────────
+function loadEmpire() {
+  const totalXP = allMembres.reduce((s,m) => s + m.xp_current, 0);
+  document.getElementById('stat-membres').textContent = allMembres.filter(m=>m.status==='active').length;
+  document.getElementById('stat-xp').textContent = totalXP.toLocaleString('fr-FR');
+  document.getElementById('stat-groupes').textContent = MOCK.groupes.filter(g=>g.status==='active').length;
+  document.getElementById('stat-badges').textContent = MOCK.badges.length;
+
+  const tbody = document.getElementById('top-membres-tbody');
+  const sorted = [...allMembres].sort((a,b) => b.xp_current - a.xp_current).slice(0,10);
+  tbody.innerHTML = sorted.map((m,i) => `
+    <tr>
+      <td>${medal(i)}</td>
+      <td class="td-pseudo">${m.pseudo}</td>
+      <td class="td-af-id">${m.af_id}</td>
+      <td class="td-xp">${m.xp_current.toLocaleString('fr-FR')}</td>
+      <td style="color:var(--muted)">${m.xp_historical.toLocaleString('fr-FR')}</td>
+      <td style="color:var(--muted)">${m.level}</td>
+      <td class="td-grade">${m.grade_icon} ${m.grade_name}</td>
+    </tr>`).join('');
+
+  document.getElementById('top-clubs-tbody').innerHTML = `
+    <tr><td><strong>Otaku De Soa</strong></td><td class="td-xp">${(totalXP*0.8|0).toLocaleString('fr-FR')}</td><td>4</td></tr>
+    <tr><td><strong>District Centre</strong></td><td class="td-xp">${(totalXP*0.2|0).toLocaleString('fr-FR')}</td><td>1</td></tr>`;
+}
+
+function medal(i) {
+  return ['🥇','🥈','🥉'][i] || (i+1)+'.';
+}
+
+// ── Membres ───────────────────────────────────────────────────
+function loadMembres() { renderMembres(allMembres); }
+
+function filterMembres() {
+  const q = document.getElementById('search-membres').value.toLowerCase();
+  const st = document.getElementById('filter-status').value;
+  let filtered = allMembres.filter(m => {
+    const match = !q || m.pseudo.toLowerCase().includes(q) || m.af_id.toLowerCase().includes(q);
+    const stMatch = !st || m.status === st;
+    return match && stMatch;
+  });
+  renderMembres(filtered);
+}
+
+function renderMembres(list) {
+  const tbody = document.getElementById('membres-tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted)">Aucun membre trouvé</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(m => `
+    <tr>
+      <td class="td-af-id">${m.af_id}</td>
+      <td class="td-pseudo">${m.pseudo}</td>
+      <td class="td-xp">${m.xp_current.toLocaleString('fr-FR')}</td>
+      <td style="color:var(--muted)">${m.xp_historical.toLocaleString('fr-FR')}</td>
+      <td style="color:var(--muted)">${m.level}</td>
+      <td class="td-grade">${m.grade_icon} ${m.grade_name}</td>
+      <td style="color:var(--muted);font-size:12px">${m.geography_name||'—'}</td>
+      <td><span class="td-status-${m.status}">${statusLabel(m.status)}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openXPModal('${m.af_id}','${m.pseudo}')">XP</button>
+        ${m.status==='banned'
+          ? `<button class="btn btn-ghost btn-sm" onclick="toast('Unban: fonctionnalité API requise','info')">Lever ban</button>`
+          : `<button class="btn btn-danger btn-sm" onclick="toast('Ban: fonctionnalité API requise','error')">Ban</button>`}
+      </td>
+    </tr>`).join('');
+}
+
+function statusLabel(s) {
+  return {active:'● Actif',inactive:'○ Inactif',banned:'✕ Banni',deleted:'Supprimé'}[s]||s;
+}
+
+function openXPModal(afid, pseudo) {
+  document.getElementById('xp-membre-input').value = pseudo;
+  openModal('modal-addxp');
+}
+
+// ── Grades ────────────────────────────────────────────────────
+function loadGrades() {
+  document.getElementById('grade-list').innerHTML = MOCK.grades.map(g => `
+    <div class="grade-item">
+      <div class="grade-icon">${g.icon}</div>
+      <div class="grade-name">${g.name}</div>
+      <div class="grade-cost">${g.xp_cost === 0 ? 'Gratuit (départ)' : g.xp_cost.toLocaleString('fr-FR') + ' XP'}</div>
+      <div class="grade-universe">Univers ${g.universe} · Rang ${g.rank_order}</div>
+    </div>`).join('');
+}
+
+// ── Badges ────────────────────────────────────────────────────
+function loadBadges() {
+  document.getElementById('badge-grid').innerHTML = MOCK.badges.map(b => `
+    <div class="badge-item" title="${b.category}">
+      <div class="badge-icon-lg">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-category">${b.category}</div>
+      <div class="badge-rarity-${b.rarity}">${rarityLabel(b.rarity)}</div>
+    </div>`).join('');
+}
+
+function rarityLabel(r) {
+  return {common:'Commun',rare:'Rare ✦',legendary:'Légendaire ✦✦',unique:'Unique ✦✦✦'}[r]||r;
+}
+
+function loadBadgesForSelect() {
+  const sel = document.getElementById('award-badge-select');
+  sel.innerHTML = MOCK.badges.map(b => `<option value="${b.name}">${b.icon} ${b.name}</option>`).join('');
+}
+
+// ── Missions ──────────────────────────────────────────────────
+function loadMissions() {
+  const diffColors = {facile:'var(--green)',normale:'var(--yellow)',difficile:'#FF9800',tres_difficile:'var(--red)',epique:'#9C27B0',legendaire:'#212121'};
+  document.getElementById('missions-tbody').innerHTML = MOCK.missions.map(m => `
+    <tr>
+      <td class="td-pseudo">${m.title}</td>
+      <td style="color:var(--muted);font-size:12px">${m.type}</td>
+      <td style="color:${diffColors[m.difficulty]||'var(--muted)'};font-size:12px">${m.difficulty}</td>
+      <td class="td-xp">${m.rewards?.xp ? '+'+m.rewards.xp+' XP' : '—'}</td>
+      <td><span style="color:${m.is_active?'var(--green)':'var(--muted)'};font-size:11px">${m.is_active?'● Active':'○ Inactive'}</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="toast('Édition: API requise','info')">Éditer</button></td>
+    </tr>`).join('');
+}
+
+// ── Afroo ─────────────────────────────────────────────────────
+function loadAfroo() {
+  document.getElementById('stat-afroo-total').textContent = '8';
+  document.getElementById('stat-afroo-tx').textContent = MOCK.afroo.length;
+  document.getElementById('stat-afroo-members').textContent = '2';
+  document.getElementById('afroo-tbody').innerHTML = MOCK.afroo.map(t => `
+    <tr>
+      <td class="td-pseudo">${t.pseudo}</td>
+      <td style="color:${t.amount>0?'var(--green)':'var(--red)'}">${t.amount>0?'+':''}${t.amount} 🪙</td>
+      <td style="color:var(--muted);font-size:12px">${t.source}</td>
+      <td style="color:var(--muted)">${t.balance_before}</td>
+      <td class="td-xp">${t.balance_after}</td>
+      <td style="color:var(--muted);font-size:11px">${t.created_at}</td>
+    </tr>`).join('');
+}
+
+// ── Modération ────────────────────────────────────────────────
+function loadModeration() {
+  const filter = document.getElementById('filter-mod-level')?.value;
+  let list = MOCK.moderation;
+  if (filter) list = list.filter(m => m.level === filter);
+  document.getElementById('mod-tbody').innerHTML = list.length ? list.map(m => `
+    <tr>
+      <td class="td-pseudo">${m.pseudo}</td>
+      <td style="font-size:12px;color:var(--muted)">${m.action}</td>
+      <td><span class="mod-level ${m.level}">${m.level}</span></td>
+      <td style="font-size:12px;color:var(--muted);max-width:200px">${m.reason}</td>
+      <td style="font-size:11px;color:var(--muted)">${(m.group_jid||'—').substring(0,20)}</td>
+      <td style="font-size:11px;color:var(--muted)">${m.created_at}</td>
+      <td><span class="td-status-${m.status==='active'?'active':'inactive'}" style="font-size:11px">${m.status}</span></td>
+    </tr>`).join('')
+    : '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Aucun événement de modération</td></tr>';
+}
+
+// ── Groupes ───────────────────────────────────────────────────
+function loadGroupes() {
+  document.getElementById('groupes-tbody').innerHTML = MOCK.groupes.map(g => `
+    <tr>
+      <td class="td-pseudo">${g.group_name}</td>
+      <td class="td-af-id">${g.group_jid}</td>
+      <td><span class="td-status-${g.status==='active'?'active':'inactive'}">${g.status==='active'?'● Actif':'○ Inactif'}</span></td>
+      <td style="color:var(--muted);font-size:12px">${g.activated_at}</td>
+      <td style="color:var(--muted);font-size:12px">XP ✓ Commandes ✓ Modération ✓</td>
+    </tr>`).join('');
+}
+
+// ── Géographie ────────────────────────────────────────────────
+function loadGeo() {
+  document.getElementById('geo-tree').innerHTML = `
+    <div class="geo-node"><span class="geo-type">empire</span><span class="geo-name">🌍 Empire Afro'o Forever</span><span class="geo-xp">5030 XP</span><span class="geo-count">5 membres</span></div>
+    <div class="geo-node geo-indent-1"><span class="geo-type">royaume</span><span class="geo-name">👑 Cameroun</span><span class="geo-xp">5030 XP</span><span class="geo-count">5 membres</span></div>
+    <div class="geo-node geo-indent-2"><span class="geo-type">légion</span><span class="geo-name">⚔️ Centre</span><span class="geo-xp">5030 XP</span><span class="geo-count">5 membres</span></div>
+    <div class="geo-node geo-indent-3"><span class="geo-type">club</span><span class="geo-name">🏫 Otaku De Soa</span><span class="geo-xp">4030 XP</span><span class="geo-count">4 membres</span></div>
+    <div class="geo-node geo-indent-3"><span class="geo-type">district</span><span class="geo-name">🏙️ District Centre</span><span class="geo-xp">1000 XP</span><span class="geo-count">1 membre</span></div>`;
+}
+
+// ── Config ────────────────────────────────────────────────────
+function loadConfig() {
+  const boolKeys = ['xp_drain_enabled'];
+  const groups = [
+    { title: 'XP & Progression', keys: ['xp_per_message','xp_flush_interval_ms','xp_drain_enabled','xp_drain_amount','xp_drain_grace_days'] },
+    { title: 'Économie', keys: ['afroo_xp_rate','consent_version'] },
+  ];
+
+  document.getElementById('config-grid').innerHTML = groups.map(g => `
+    <div class="config-group">
+      <div class="config-group-title">${g.title}</div>
+      ${g.keys.map(key => {
+        const row = MOCK.config.find(c => c.key === key);
+        if (!row) return '';
+        const isToggle = boolKeys.includes(key);
+        return `<div class="config-row">
+          <span class="config-key" title="${key}">${row.description}</span>
+          ${isToggle
+            ? `<label class="toggle"><input type="checkbox" id="cfg-${key}" ${row.value==='true'?'checked':''}><span class="toggle-slider"></span></label>`
+            : `<input class="config-value" id="cfg-${key}" value="${row.value}">`}
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+function saveConfig() {
+  MOCK.config.forEach(c => {
+    const el = document.getElementById('cfg-' + c.key);
+    if (el) c.value = el.type === 'checkbox' ? String(el.checked) : el.value;
+  });
+  toast('Configuration sauvegardée localement. Connexion API requise pour persistance.', 'success');
+}
+
+// ── Modals ────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ── Soumissions ───────────────────────────────────────────────
+function submitXP() {
+  const membre = document.getElementById('xp-membre-input').value;
+  const amount = parseInt(document.getElementById('xp-amount-input').value);
+  const note = document.getElementById('xp-note-input').value;
+  if (!membre || isNaN(amount)) { toast('Membre et montant requis','error'); return; }
+
+  // Mise à jour locale du mock
+  const m = allMembres.find(x => x.pseudo.toLowerCase() === membre.toLowerCase() || x.af_id.toLowerCase() === membre.toLowerCase());
+  if (m) {
+    m.xp_current = Math.max(0, m.xp_current + amount);
+    if (amount > 0) m.xp_historical += amount;
+    m.level = Math.floor(m.xp_historical / 500) + 1;
+  }
+
+  closeModal('modal-addxp');
+  toast(`${amount > 0 ? '+' : ''}${amount} XP ${amount > 0 ? 'attribués' : 'retirés'} à ${membre}`, amount > 0 ? 'success' : 'info');
+  loadEmpire();
+  if (document.getElementById('page-membres').classList.contains('active')) loadMembres();
+}
+
+function submitCreateBadge() {
+  const name = document.getElementById('badge-name').value;
+  const icon = document.getElementById('badge-icon').value || '🏅';
+  const category = document.getElementById('badge-category').value;
+  const rarity = document.getElementById('badge-rarity').value;
+  if (!name) { toast('Nom du badge requis','error'); return; }
+
+  MOCK.badges.push({ name, icon, category, rarity });
+  closeModal('modal-createbadge');
+  toast(`Badge "${name}" créé`, 'success');
+  loadBadges(); loadBadgesForSelect();
+}
+
+function submitAwardBadge() {
+  const membre = document.getElementById('award-membre').value;
+  const badge = document.getElementById('award-badge-select').value;
+  if (!membre) { toast('Membre requis','error'); return; }
+  closeModal('modal-awardbadge');
+  toast(`Badge "${badge}" attribué à ${membre}`, 'success');
+}
+
+function submitCreateMission() {
+  const title = document.getElementById('mission-title').value;
+  const type = document.getElementById('mission-type').value;
+  const diff = document.getElementById('mission-diff').value;
+  const xp = parseInt(document.getElementById('mission-xp').value) || 0;
+  if (!title) { toast('Titre requis','error'); return; }
+  MOCK.missions.push({ title, type, difficulty: diff, rewards: { xp }, is_active: true });
+  closeModal('modal-createmission');
+  toast(`Mission "${title}" créée`, 'success');
+  loadMissions();
+}
+
+function submitAfrooGive() {
+  const membre = document.getElementById('afroo-membre').value;
+  const amount = parseInt(document.getElementById('afroo-amount').value);
+  if (!membre || isNaN(amount) || amount <= 0) { toast('Membre et montant requis','error'); return; }
+  MOCK.afroo.unshift({ pseudo: membre, amount, source: 'admin_grant', balance_before: 0, balance_after: amount, created_at: new Date().toISOString().split('T')[0] });
+  closeModal('modal-afroogive');
+  toast(`🪙 ${amount} Afroo distribués à ${membre}`, 'success');
+  loadAfroo();
+}
+
+function submitAddGeo() {
+  const name = document.getElementById('geo-name').value;
+  if (!name) { toast('Nom requis','error'); return; }
+  closeModal('modal-addgeo');
+  toast(`Structure "${name}" ajoutée (API requise pour persistance)`, 'success');
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+</script>
+</body>
+</html>
